@@ -1,6 +1,12 @@
 import express from "express";
 import multer from "multer";
 import { listarPosts, crearNuevoPost, uploadImagen, actualizarNuevoPost } from "../controllers/postsControllers.js";
+import cors from "cors";
+
+const corsOptions = {
+    origin: "http://localhost:8000",
+    optionSuccessStatus: 200
+}
 
 const storage = multer.diskStorage({
     destination: function(req, file, cb){
@@ -19,14 +25,16 @@ const upload = multer({ storage: storage });
 const routes = (app) => {
     // Habilita el análisis de cuerpos de solicitudes JSON, permitiendo manejar datos JSON en los endpoints de tu API.
     app.use(express.json());
+
+    app.use(cors(corsOptions));
     
     // Define las rutas para listar todos los posts
     app.get('/posts', listarPosts);
     // Define las rutas para crear un post
     app.post('/posts', crearNuevoPost);
-    // Defino la ruta para subir imagenes
+    // Define las rutas para subir imagenes
     app.post('/upload', upload.single("imagen"), uploadImagen);
-    //
+    // Define la ruta para actualizar un post
     app.put('/upload/:id', actualizarNuevoPost);
 }
 
