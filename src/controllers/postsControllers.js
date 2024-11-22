@@ -1,5 +1,6 @@
-import { getTodosPost, crearPost } from "../models/postsModels.js";
+import { getTodosPost, crearPost, actualizarPost } from "../models/postsModels.js";
 import fs from "fs";
+import generarDescripciónConGeminis from "../services/geminiService.js";
 
 export async function listarPosts(req, res) {
     // Obtiene de forma asíncrona todas las publicaciones de la base de datos utilizando la función `getTodosPost`.
@@ -31,9 +32,31 @@ export async function uploadImagen(req, res) {
         const postCreado = await crearPost(nuevoPost);
         const imagenActualizada = `uploads/${postCreado.insertedId}.png`
         fs.renameSync(req.file.path, imagenActualizada)
-        res.status(200).json(postCreado);  
-    } catch(erro) {
+        res.status(200).json(postCreado);
+    } catch (erro) {
         console.error(erro.message);
-        res.status(500).json({"Erro":"Error al crear el post o guardar la imagen"})
+        res.status(500).json({ "Erro": "Error al crear el post o guardar la imagen" })
     }
 }
+
+export async function actualizarNuevoPost(req, res) {
+    const id = req.params.id;
+    const urlImagen = `http://localhost:3000/${id}.png`;
+    try {
+        const imgBuffer = fs.readFileSync(`uploads/${id}.png`);
+        const descripcion = await generarDescripciónConGeminis(imgBuffer);
+
+
+        const post = {
+            imgUrl: urlImagen,
+            descripcion: descripcion,
+            alt: req.body.alt
+        };
+
+        const postCreado = await actualizarPost(id, post);
+        res.status(200).json(postCreado);
+    } catch (erro) {
+        console.error(erro.message);
+        res.status(500).json({ "Erro": "Solicitud fallida" });
+    }
+};

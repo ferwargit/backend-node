@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 // Importa una función desde el archivo `dbConfig.js` para establecer una conexión a la base de datos.
 import connectToDatabase from "../config/dbConfig.js";
 
@@ -21,4 +22,12 @@ export async function crearPost(nuevoPost) {
     const coleccion = db.collection("posts");
     
     return coleccion.insertOne(nuevoPost);
+}
+
+export async function actualizarPost(id, nuevoPost) {
+    const db = conexion.db("inmersion-alura");
+    const coleccion = db.collection("posts");
+    const objID = ObjectId.createFromHexString(id);
+    
+    return coleccion.updateOne({_id: new ObjectId(objID)}, {$set:nuevoPost});
 }
