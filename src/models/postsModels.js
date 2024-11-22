@@ -5,7 +5,7 @@ import connectToDatabase from "../config/dbConfig.js";
 // Almacena la conexión en la variable `conexion`.
 const conexion = await connectToDatabase(process.env.STRING_CONEXION);
 
-export default async function getTodosPost() {
+export async function getTodosPost() {
     // Obtiene una referencia a la base de datos "inmersion-alura" a partir de la conexión establecida.
     const db = conexion.db("inmersion-alura");
     
@@ -14,5 +14,11 @@ export default async function getTodosPost() {
     
     // Encuentra todos los documentos en la colección "posts" y los devuelve como un arreglo.
     return coleccion.find().toArray();
+}
+
+export async function crearPost(nuevoPost) {
+    const db = conexion.db("inmersion-alura");
+    const coleccion = db.collection("posts");
     
+    return coleccion.insertOne(nuevoPost);
 }
